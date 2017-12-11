@@ -1,0 +1,19 @@
+SRCS:=$(wildcard *.c)
+OBJS=$(SRCS: .c=.o)
+.PHONY : all
+
+all : dep main
+dep:
+
+%.d : %.c
+        rm -f $@
+        $(CC) -MM  $< > $@.
+        sed 's,/($*/)/.o[ :]*,/1.o $@ : ,g' < $@. > $@
+        rm -f $@.
+
+main : $(OBJS)
+        gcc -o main $^
+sinclude $(SRCS:.c=.d)
+
+clean:
+         -rm -f *.d *.o main
