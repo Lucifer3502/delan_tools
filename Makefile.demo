@@ -1,19 +1,25 @@
 SRCS:=$(wildcard *.c)
-OBJS=$(SRCS: .c=.o)
+OBJS=$(SRCS:%.c=%.o)
 .PHONY : all
 
-all : dep main
-dep:
+all:main
 
-%.d : %.c
-        rm -f $@
-        $(CC) -MM  $< > $@.
-        sed 's,/($*/)/.o[ :]*,/1.o $@ : ,g' < $@. > $@
-        rm -f $@.
+%.d:%.c
+	@echo "CREATE $@"
+	@rm -f $@
+	@$(CC) -MM  $< > $@.
+	@sed 's,/($*/)/.o[ :]*,/1.o $@ : ,g' < $@. > $@
+	@rm -f $@.
 
-main : $(OBJS)
-        gcc -o main $^
+main:$(OBJS)
+	gcc -o main $^
+
 sinclude $(SRCS:.c=.d)
-
+%.o:%.c
+	$(CC) -o $@ -c $<
 clean:
-         -rm -f *.d *.o main
+	-rm -f *.d *.o main
+
+
+debug:
+	@echo $(OBJS)
